@@ -1,3 +1,5 @@
+From https://github.com/GoogleCloudPlatform/cloud-sdk-docker
+
 # Google Cloud SDK Docker
 
 These are Docker images for the [Google Cloud SDK](https://cloud.google.com/sdk/).
