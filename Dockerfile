@@ -21,18 +21,18 @@ RUN apt-get -qqy update && apt-get install -qqy \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
     apt-get update && \
     apt-get install -y google-cloud-sdk=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-app-engine-python=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-app-engine-python-extras=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-app-engine-java=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-app-engine-go=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-datalab=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-datastore-emulator=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-pubsub-emulator=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-bigtable-emulator=${CLOUD_SDK_VERSION}-0 \
+#        google-cloud-sdk-app-engine-python=${CLOUD_SDK_VERSION}-0 \
+#        google-cloud-sdk-app-engine-python-extras=${CLOUD_SDK_VERSION}-0 \
+#        google-cloud-sdk-app-engine-java=${CLOUD_SDK_VERSION}-0 \
+#        google-cloud-sdk-app-engine-go=${CLOUD_SDK_VERSION}-0 \
+#        google-cloud-sdk-datalab=${CLOUD_SDK_VERSION}-0 \
+#        google-cloud-sdk-datastore-emulator=${CLOUD_SDK_VERSION}-0 \
+#        google-cloud-sdk-pubsub-emulator=${CLOUD_SDK_VERSION}-0 \
+#        google-cloud-sdk-bigtable-emulator=${CLOUD_SDK_VERSION}-0 \
         google-cloud-sdk-firestore-emulator=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-spanner-emulator=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-cbt=${CLOUD_SDK_VERSION}-0 \
-        kubectl && \
+#        google-cloud-sdk-spanner-emulator=${CLOUD_SDK_VERSION}-0 \
+#        google-cloud-sdk-cbt=${CLOUD_SDK_VERSION}-0 \
+#        kubectl && \
     gcloud --version && \
     docker --version && kubectl version --client
 RUN apt-get install -qqy \
