@@ -1,24 +1,21 @@
-FROM docker:17.12.0-ce as static-docker-source
+FROM docker:19.03.11 as static-docker-source
 
 FROM node:14-buster
-ARG CLOUD_SDK_VERSION=280.0.0
+ARG CLOUD_SDK_VERSION=321.0.0
 ENV CLOUD_SDK_VERSION=$CLOUD_SDK_VERSION
-ENV CLOUDSDK_PYTHON=python3
 ENV PATH "$PATH:/opt/google-cloud-sdk/bin/"
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 RUN apt-get -qqy update && apt-get install -qqy \
         curl \
-        gcc \
         python3-dev \
-        python3-pip \
+        python3-crcmod \
+        python-crcmod \
         apt-transport-https \
         lsb-release \
         openssh-client \
         git \
         make \
         gnupg && \
-    pip3 install -U crcmod && \
-    echo 'deb http://deb.debian.org/debian/ sid main' >> /etc/apt/sources.list && \
     export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
     echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" > /etc/apt/sources.list.d/google-cloud-sdk.list && \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
@@ -32,9 +29,16 @@ RUN apt-get -qqy update && apt-get install -qqy \
         google-cloud-sdk-datastore-emulator=${CLOUD_SDK_VERSION}-0 \
         google-cloud-sdk-pubsub-emulator=${CLOUD_SDK_VERSION}-0 \
         google-cloud-sdk-bigtable-emulator=${CLOUD_SDK_VERSION}-0 \
+        google-cloud-sdk-firestore-emulator=${CLOUD_SDK_VERSION}-0 \
+        google-cloud-sdk-spanner-emulator=${CLOUD_SDK_VERSION}-0 \
         google-cloud-sdk-cbt=${CLOUD_SDK_VERSION}-0 \
         kubectl && \
     gcloud --version && \
     docker --version && kubectl version --client
+RUN apt-get install -qqy \
+        gcc \
+        python3-pip
+RUN pip3 install pyopenssl
+RUN git config --system credential.'https://source.developers.google.com'.helper gcloud.sh
 VOLUME ["/root/.config", "/root/.kube"]
 

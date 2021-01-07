@@ -1,10 +1,8 @@
-FROM docker:17.12.0-ce as static-docker-source
+FROM docker:19.03.11 as static-docker-source
 
-FROM alpine:3.11
-ARG CLOUD_SDK_VERSION=280.0.0
+FROM alpine:3.12
+ARG CLOUD_SDK_VERSION=321.0.0
 ENV CLOUD_SDK_VERSION=$CLOUD_SDK_VERSION
-ENV CLOUDSDK_PYTHON=python3
-
 ENV PATH /google-cloud-sdk/bin:$PATH
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 RUN apk --no-cache add \
@@ -23,4 +21,5 @@ RUN apk --no-cache add \
     gcloud config set component_manager/disable_update_check true && \
     gcloud config set metrics/environment github_docker_image && \
     gcloud --version
+RUN git config --system credential.'https://source.developers.google.com'.helper gcloud.sh
 VOLUME ["/root/.config"]

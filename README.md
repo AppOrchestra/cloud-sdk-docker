@@ -1,9 +1,9 @@
 # Google Cloud SDK Docker
 
-This is Docker image for the [Google Cloud SDK](https://cloud.google.com/sdk/).
+These are Docker images for the [Google Cloud SDK](https://cloud.google.com/sdk/).
 
-The `:latest` tag of this image is Debian-based and includes default command
-line tools of Google Cloud SDK (`gcloud`, `gsutil`, `bq`) as well as all
+The `:latest` tag is Debian-based and includes default command
+line tools of Google Cloud SDK (`gcloud`, `gsutil`, `bq`) as well several 
 [additional components](https://cloud.google.com/sdk/downloads#apt-get).
 
 ## Repositories
@@ -21,8 +21,9 @@ The full repository name for Docker Hub is `google/cloud-sdk`.
   no components pre-installed, Debian-based)
 * `:alpine`,  `:VERSION-alpine`: (smallest image
   with no additional components installed, Alpine-based)
-* `:component_based`, `:VERSION`: (Similar to
+* `:debian_component_based`, `:VERSION-debian_component_based`: (Similar to
   :latest but component installer based)
+* `:emulators`, `:VERSION`: (as small as possible with all the emulators)
 
 &rarr; Check out [Container Registry](https://gcr.io/google.com/cloudsdktool/cloud-sdk) for available tags.
 
@@ -40,8 +41,6 @@ docker pull gcr.io/google.com/cloudsdktool/cloud-sdk:latest
 
 (Note: To pull from Docker Hub, replace all instances of `gcr.io/google.com/cloudsdktool/cloud-sdk` with `google/cloud-sdk`.)
 
-
-
 Verify the install
 
 ```bash
@@ -55,10 +54,16 @@ or use a particular version number:
 docker run gcr.io/google.com/cloudsdktool/cloud-sdk:260.0.0 gcloud version
 ```
 
-Then, authenticate by running:
+You can authenticate `gcloud` with your user credentials by running [`gcloud auth login`](https://cloud.google.com/sdk/gcloud/reference/auth/login):
 
 ```
 docker run -ti --name gcloud-config gcr.io/google.com/cloudsdktool/cloud-sdk gcloud auth login
+```
+
+If you need to authenticate any program that uses the Google Cloud APIs, you need to pass the `--update-adc` option:
+
+```
+docker run -ti --name gcloud-config gcr.io/google.com/cloudsdktool/cloud-sdk gcloud auth login --update-adc
 ```
 
 Once you authenticate successfully, credentials are preserved in the volume of
@@ -78,7 +83,7 @@ instance-1  us-central1-a  n1-standard-1               10.240.0.2   8.34.219.29 
 > other containers.
 
 
-Alternatively, you can use use `auth/credential_file_override` property to set a path to a mounted service account
+Alternatively, you can use `auth/credential_file_override` property to set a path to a mounted service account
 and then the config to read that using `CLOUDSDK_CONFIG` environment variable.
 
 for example, `mycloud` configuration below has the `auth/credential_file_override` already set and points towards a certificate file
@@ -106,17 +111,42 @@ PROJECT_ID           NAME         PROJECT_NUMBER
 project_id1          GCPAppID     1071284184432
 
 ```
+### Components Installed in Each Tag
+
+|                    Component                         | :latest | :alpine | :slim | :debian_component_based | :emulators |
+|:----------------------------------------------------:|:-------:|:-------:|:-----:|:-----------------------:|:----------:|
+| App Engine Go Extensions                             |    x    |         |       |            x            |            |
+| Appctl                                               |         |         |       |                         |            |
+| BigQuery Command Line Tool                           |    x    |    x    |   x   |            x            |            |
+| Cloud Bigtable Command Line Tool                     |    x    |         |       |            x            |            |
+| Cloud Bigtable Emulator                              |    x    |         |       |            x            |     x      |
+| Cloud Datalab Command Line Tool                      |    x    |         |       |            x            |            |
+| Cloud Datastore Emulator                             |    x    |         |       |            x            |     x      |
+| Cloud Firestore Emulator                             |    x    |         |       |                         |     x      |
+| Cloud Pub/Sub Emulator                               |    x    |         |       |            x            |     x      |
+| Cloud SDK Core Libraries                             |    x    |    x    |   x   |            x            |            |
+| Cloud SQL Proxy                                      |         |         |       |                         |            |
+| Cloud Spanner Emulator                               |    x    |         |       |                         |     x      |
+| Cloud Storage Command Line Tool                      |    x    |    x    |   x   |            x            |            |
+| Emulator Reverse Proxy                               |         |         |       |                         |            |
+| Google Cloud Build Local Builder                     |         |         |       |                         |            |
+| Google Container Registry's Docker credential helper |         |         |       |                         |            |
+| Kind                                                 |         |         |       |                         |            |
+| Kustomize                                            |         |         |       |                         |            |
+| Minikube                                             |         |         |       |                         |            |
+| Nomos CLI                                            |         |         |       |                         |            |
+| Skaffold                                             |         |         |       |                         |            |
+| anthos-auth                                          |         |         |       |                         |            |
+| gcloud Alpha Commands                                |    x    |         |   x   |            x            |            |
+| gcloud Beta Commands                                 |    x    |         |   x   |            x            |     x      |
+| gcloud app Java Extensions                           |    x    |         |       |            x            |            |
+| gcloud app Python Extensions                         |    x    |         |       |            x            |            |
+| gcloud app Python Extensions (Extra Libraries)       |    x    |         |       |            x            |            |
+| kpt                                                  |    x    |         |       |                         |            |
+| kubectl                                              |    x    |         |   x   |            x            |            |
 
 
 ### Installing additional components
-
-By default, [all gcloud components
-are](https://cloud.google.com/sdk/downloads#apt-get) installed on the default
-images (`gcr.io/google.com/cloudsdktool/cloud-sdk:latest` and `gcr.io/google.com/cloudsdktool/cloud-sdk:VERSION`).
-
-The `gcr.io/google.com/cloudsdktool/cloud-sdk:slim` and `gcr.io/google.com/cloudsdktool/cloud-sdk:alpine` images do not contain
-additional components pre-installed. You can extend these images by following
-the instructions below:
 
 #### Debian-based images
 
@@ -130,7 +160,7 @@ docker build --build-arg CLOUD_SDK_VERSION=159.0.0 \
 #### Alpine-based images
 
 To install additional components for Alpine-based images, create a Dockerfile
-that uses the gcloud image as the base image. For example, to add `kubectl` and
+that uses the `cloud-sdk` image as the base image. For example, to add `kubectl` and
 `app-engine-java` components:
 
 ```Dockerfile
@@ -167,3 +197,13 @@ The full Dockerfile for that can be found
 
 You can also follow the Cloud SDK Release schedule here
 - [https://groups.google.com/forum/#!forum/google-cloud-sdk-announce](https://groups.google.com/forum/#!forum/google-cloud-sdk-announce)
+
+### Pinning version
+
+Images tagged `:latest`, `:alpine`, `:slim` and `:debian_component_based` use
+the most recent version of Google Cloud SDK, which may change its behaviour in
+the future. List of components installed by default in each image can also
+change between versions. To avoid such change breaking the tool you are using,
+it is not recommended to use these tags in any production tools directly.
+Instead use a particular version as listed in [Supported tags](#supported-tags)
+and update it periodically.

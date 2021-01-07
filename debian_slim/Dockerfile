@@ -1,13 +1,12 @@
-FROM docker:17.12.0-ce as static-docker-source
+FROM docker:19.03.11 as static-docker-source
 
-FROM debian:buster
-ARG CLOUD_SDK_VERSION=280.0.0
+FROM debian:buster-slim
+ARG CLOUD_SDK_VERSION=321.0.0
 ENV CLOUD_SDK_VERSION=$CLOUD_SDK_VERSION
-ENV CLOUDSDK_PYTHON=python3
-
-ARG INSTALL_COMPONENTS
 ENV PATH "$PATH:/opt/google-cloud-sdk/bin/"
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
+ARG INSTALL_COMPONENTS
+RUN mkdir -p /usr/share/man/man1/
 RUN apt-get update -qqy && apt-get install -qqy \
         curl \
         gcc \
@@ -27,5 +26,7 @@ RUN apt-get update -qqy && apt-get install -qqy \
     gcloud config set component_manager/disable_update_check true && \
     gcloud config set metrics/environment github_docker_image && \
     gcloud --version
+
+RUN git config --system credential.'https://source.developers.google.com'.helper gcloud.sh
 
 VOLUME ["/root/.config"]
