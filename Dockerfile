@@ -36,6 +36,7 @@ RUN apt-get -qqy update && apt-get install -qqy \
     gcloud --version && \
     docker --version
 #	&& kubectl version --client
+RUN chmod 777 -R /opt/google-cloud-sdk/bin/
 RUN apt-get install -qqy \
         gcc \
         python3-pip
